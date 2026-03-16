@@ -168,185 +168,289 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             children: [
               SizedBox(height: 3),
-              Stack(
-                children: [
-                  SizedBox(
-                    height: h * 0.34,
-                    width: double.infinity,
-                    child: PageView.builder(
-                      controller: _pageController,
-                      itemCount: banners.length,
-                      itemBuilder: (context, index) {
-                        return Image.asset(
-                          banners[index]["image"]!,
-                          fit: BoxFit.cover,
-                        );
-                      },
-                      onPageChanged: (index) {
-                        setState(() {
-                          currentIndex = index;
-                        });
-                      },
-                    ),
-                  ),
-                  Container(
-                    height: h * 0.34,
-                    width: double.infinity,
-                    color: Colors.black.withOpacity(0.4),
-                  ),
-                  Positioned.fill(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 600),
-                          transitionBuilder: (child, animation) {
-                            final offsetAnimation = Tween<Offset>(
-                              begin: const Offset(0, -0.5),
-                              end: Offset.zero,
-                            ).animate(animation);
-                            return SlideTransition(
-                              position: offsetAnimation,
-                              child: FadeTransition(
-                                opacity: animation,
-                                child: child,
-                              ),
-                            );
-                          },
-                          child: Padding(
-                            key: ValueKey(currentIndex),
-                            padding: EdgeInsets.symmetric(horizontal: w * 0.05),
-                            child: Text(
-                              banners[currentIndex]["title"]!,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: w > 800 ? 36 : 22,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: h * 0.02),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.orange,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 25,
-                              vertical: 12,
-                            ),
-                          ),
-                          onPressed: () {},
-                          child: Text(
-                            "DISCOVER NOW",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-
-                        SizedBox(height: h * 0.04),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(
-                            banners.length,
-                            (index) => AnimatedContainer(
-                              duration: Duration(milliseconds: 300),
-                              margin: const EdgeInsets.symmetric(horizontal: 4),
-                              height: 8,
-                              width: currentIndex == index ? 14 : 8,
-                              decoration: BoxDecoration(
-                                color: currentIndex == index
-                                    ? Colors.orange
-                                    : Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: w * 0.06,
-                  vertical: h * 0.03,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Image.asset(
-                        "assets/images/murgabhai.png",
-                        height: h * 0.34,
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-
-                    SizedBox(height: h * 0.025),
-                    Text(
-                      "Welcome to Our Poultry And\nEgg Farm.",
-                      style: TextStyle(
-                        fontSize: w > 800 ? 34 : 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-
-                    SizedBox(height: h * 0.02),
-                    Text(
-                      "Continually productize compelling quality for packed with elated productize compelling quality for packed with all elated them setting up to website and creating pages.",
-                      style: TextStyle(
-                        fontSize: w > 800 ? 18 : 15,
-                        color: Colors.grey.shade700,
-                        height: 1.6,
-                      ),
-                    ),
-
-                    SizedBox(height: h * 0.025),
-                    buildPoint("We are providing different services"),
-                    buildPoint("We are one of leading company"),
-                    buildPoint(
-                      "Profitability is the primary goal of all business",
-                    ),
-                    buildPoint("Learn how to grow your Business"),
-                    buildPoint("Professional solutions for your business"),
-
-                    SizedBox(height: h * 0.03),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xffF48C45),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: w * 0.10,
-                          vertical: h * 0.013,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                      ),
-                      onPressed: () {},
-                      child: Text(
-                        "READ MORE",
-                        style: TextStyle(
-                          fontSize: w > 800 ? 18 : 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: h * 0.03),
-                  ],
-                ),
-              ),
+              buildHeroSection( w, h),
+              buildAboutSection(w, h),
               buildProductsSection(w, h),
               buildServicesSection(w, h),
+              buildGallery(w, h),
+              buildTeamSection(w, h),
+              buildTestimonialSection(w, h),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget buildHeroSection(double w, double h) {
+
+    bool isDesktop = w > 1000;
+    bool isTablet = w > 650 && w <= 1000;
+
+    double heroHeight = isDesktop
+        ? 520
+        : isTablet
+        ? 420
+        : 320;
+
+    return Stack(
+      children: [
+
+        /// SLIDER
+        SizedBox(
+          height: heroHeight,
+          width: double.infinity,
+
+          child: PageView.builder(
+            controller: _pageController,
+            itemCount: banners.length,
+
+            itemBuilder: (context, index) {
+              return Image.asset(
+                banners[index]["image"]!,
+                fit: BoxFit.cover,
+              );
+            },
+
+            onPageChanged: (index) {
+              setState(() {
+                currentIndex = index;
+              });
+            },
+          ),
+        ),
+
+        /// DARK OVERLAY
+        Container(
+          height: heroHeight,
+          width: double.infinity,
+          color: Colors.black.withOpacity(0.45),
+        ),
+
+        /// TEXT CONTENT
+        Positioned.fill(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 600),
+
+                transitionBuilder: (child, animation) {
+
+                  final offsetAnimation = Tween<Offset>(
+                    begin: const Offset(0, -0.5),
+                    end: Offset.zero,
+                  ).animate(animation);
+
+                  return SlideTransition(
+                    position: offsetAnimation,
+                    child: FadeTransition(
+                      opacity: animation,
+                      child: child,
+                    ),
+                  );
+                },
+
+                child: Padding(
+                  key: ValueKey(currentIndex),
+
+                  padding: EdgeInsets.symmetric(
+                    horizontal: w * 0.08,
+                  ),
+
+                  child: Text(
+                    banners[currentIndex]["title"]!,
+                    textAlign: TextAlign.center,
+
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: isDesktop
+                          ? 48
+                          : isTablet
+                          ? 36
+                          : 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+
+              SizedBox(height: heroHeight * 0.05),
+
+              /// BUTTON
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isDesktop ? 40 : 25,
+                    vertical: isDesktop ? 18 : 12,
+                  ),
+                ),
+                onPressed: () {},
+
+                child: const Text(
+                  "DISCOVER NOW",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+
+              SizedBox(height: heroHeight * 0.08),
+
+              /// DOT INDICATOR
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+
+                children: List.generate(
+                  banners.length,
+                      (index) => AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+
+                    height: 8,
+                    width: currentIndex == index ? 16 : 8,
+
+                    decoration: BoxDecoration(
+                      color: currentIndex == index
+                          ? Colors.orange
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildAboutSection(double w, double h) {
+
+    bool isDesktop = w > 1000;
+    bool isTablet = w > 650 && w <= 1000;
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: w * 0.06,
+        vertical: h * 0.06,
+      ),
+      color: Colors.grey.shade100,
+
+      child: isDesktop || isTablet
+          ? Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+
+          /// LEFT IMAGE
+          Expanded(
+            flex: 1,
+            child: Image.asset(
+              "assets/images/murgabhai.png",
+              height: h * 0.45,
+              fit: BoxFit.contain,
+            ),
+          ),
+
+          SizedBox(width: w * 0.05),
+
+          /// RIGHT TEXT
+          Expanded(
+            flex: 1,
+            child: buildAboutText(w, h),
+          ),
+        ],
+      )
+
+      /// MOBILE VIEW
+          : Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+
+          Center(
+            child: Image.asset(
+              "assets/images/murgabhai.png",
+              height: h * 0.34,
+              fit: BoxFit.contain,
+            ),
+          ),
+
+          SizedBox(height: h * 0.025),
+
+          buildAboutText(w, h),
+        ],
+      ),
+    );
+  }
+  Widget buildAboutText(double w, double h) {
+
+    bool isDesktop = w > 1000;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+
+        /// TITLE
+        Text(
+          "Welcome to Our Poultry And\nEgg Farm.",
+          style: TextStyle(
+            fontSize: isDesktop ? 36 : 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+
+        SizedBox(height: h * 0.02),
+
+        /// DESCRIPTION
+        Text(
+          "Continually productize compelling quality for packed with elated productize compelling quality for packed with all elated them setting up to website and creating pages.",
+          style: TextStyle(
+            fontSize: isDesktop ? 18 : 15,
+            color: Colors.grey.shade700,
+            height: 1.6,
+          ),
+        ),
+
+        SizedBox(height: h * 0.025),
+
+        buildPoint("We are providing different services"),
+        buildPoint("We are one of leading company"),
+        buildPoint("Profitability is the primary goal of all business"),
+        buildPoint("Learn how to grow your Business"),
+        buildPoint("Professional solutions for your business"),
+
+        SizedBox(height: h * 0.03),
+
+        /// BUTTON
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xffF48C45),
+            padding: EdgeInsets.symmetric(
+              horizontal: w * 0.08,
+              vertical: h * 0.015,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+            ),
+          ),
+          onPressed: () {},
+          child: Text(
+            "READ MORE",
+            style: TextStyle(
+              fontSize: isDesktop ? 18 : 14,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -372,7 +476,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget buildProductsSection(double w, double h) {
-
     bool isDesktop = w > 1000;
     bool isTablet = w > 650 && w <= 1000;
 
@@ -383,37 +486,37 @@ class _HomePageState extends State<HomePage> {
         "image": "assets/images/pro1.png",
         "title": "Light Brown Eggs",
         "price": "\$29.99",
-        "oldPrice": "\$49.99"
+        "oldPrice": "\$49.99",
       },
       {
         "image": "assets/images/pro2.png",
         "title": "Little Chicken Broiler",
         "price": "\$29.99",
-        "oldPrice": "\$49.99"
+        "oldPrice": "\$49.99",
       },
       {
         "image": "assets/images/pro3.png",
         "title": "White Brown Eggs",
         "price": "\$29.99",
-        "oldPrice": "\$49.99"
+        "oldPrice": "\$49.99",
       },
       {
         "image": "assets/images/pro4.png",
         "title": "Chicken Broiler",
         "price": "\$29.99",
-        "oldPrice": "\$49.99"
+        "oldPrice": "\$49.99",
       },
       {
         "image": "assets/images/pro5.png",
         "title": "Fresh Chicken",
         "price": "\$29.99",
-        "oldPrice": "\$49.99"
+        "oldPrice": "\$49.99",
       },
       {
         "image": "assets/images/pro6.png",
         "title": "Raw Chicken Broiler",
         "price": "\$29.99",
-        "oldPrice": "\$49.99"
+        "oldPrice": "\$49.99",
       },
     ];
 
@@ -424,7 +527,6 @@ class _HomePageState extends State<HomePage> {
 
       child: Column(
         children: [
-
           /// TITLE
           Text(
             "Poultry Farm\nProducts",
@@ -463,7 +565,6 @@ class _HomePageState extends State<HomePage> {
             ),
 
             itemBuilder: (context, index) {
-
               final product = products[index];
 
               return buildProductCard(
@@ -619,9 +720,7 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-
-          const SizedBox(height: 14),
-
+          SizedBox(height: 14),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -661,7 +760,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget buildServicesSection(double w, double h) {
-
     bool isDesktop = w > 1000;
     bool isTablet = w > 650 && w <= 1000;
 
@@ -671,41 +769,44 @@ class _HomePageState extends State<HomePage> {
       {
         "image": "assets/images/ser1.png",
         "title": "Alternative egg",
-        "desc": "Continually aggregate frictionless enthusiasm generate user friendly portals empowered without globally results."
+        "desc":
+            "Continually aggregate frictionless enthusiasm generate user friendly portals empowered without globally results.",
       },
       {
         "image": "assets/images/ser2.png",
         "title": "Poultry Cages",
-        "desc": "Efficient poultry cages designed for better productivity, ventilation and improved poultry farm management."
+        "desc":
+            "Efficient poultry cages designed for better productivity, ventilation and improved poultry farm management.",
       },
       {
         "image": "assets/images/ser3.png",
         "title": "Breeder Management",
-        "desc": "Professional breeder management solutions ensuring healthy breeding and higher poultry production."
+        "desc":
+            "Professional breeder management solutions ensuring healthy breeding and higher poultry production.",
       },
       {
         "image": "assets/images/ser4.png",
         "title": "Poultry Climate",
-        "desc": "Smart climate control systems for maintaining ideal temperature and humidity inside poultry farms."
+        "desc":
+            "Smart climate control systems for maintaining ideal temperature and humidity inside poultry farms.",
       },
       {
         "image": "assets/images/ser5.png",
         "title": "Residue Treatment",
-        "desc": "Advanced residue treatment methods helping farms maintain hygiene and environmental sustainability."
+        "desc":
+            "Advanced residue treatment methods helping farms maintain hygiene and environmental sustainability.",
       },
       {
         "image": "assets/images/ser6.png",
         "title": "Exhaust Air Treatment",
-        "desc": "Modern exhaust air treatment technology ensuring clean airflow and healthier poultry farm environment."
+        "desc":
+            "Modern exhaust air treatment technology ensuring clean airflow and healthier poultry farm environment.",
       },
     ];
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(
-        horizontal: w * 0.06,
-        vertical: h * 0.05,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: w * 0.06, vertical: h * 0.05),
       color: Colors.grey.shade100,
       child: Column(
         children: [
@@ -741,7 +842,6 @@ class _HomePageState extends State<HomePage> {
             ),
 
             itemBuilder: (context, index) {
-
               final service = services[index];
 
               return Container(
@@ -755,7 +855,7 @@ class _HomePageState extends State<HomePage> {
                       color: Colors.black.withOpacity(.05),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
-                    )
+                    ),
                   ],
                 ),
 
@@ -801,6 +901,481 @@ class _HomePageState extends State<HomePage> {
                 ),
               );
             },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildGallery(double w, double h) {
+    bool isDesktop = w > 1000;
+    bool isTablet = w > 650 && w <= 1000;
+
+    /// Responsive columns
+    int crossAxisCount = isDesktop ? 4 : (isTablet ? 2 : 1);
+
+    List<Map<String, String>> gallery = [
+      {"image": "assets/images/gal1.jpg"},
+      {"image": "assets/images/gal2.jpg"},
+      {"image": "assets/images/gal3.jpg"},
+      {"image": "assets/images/gal4.jpg"},
+      {"image": "assets/images/gal5.jpg"},
+      {"image": "assets/images/gal6.jpg"},
+      {"image": "assets/images/gal7.jpg"},
+      {"image": "assets/images/gal8.jpg"},
+    ];
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: w * 0.05, vertical: h * 0.05),
+      color: Colors.orange.shade100.withAlpha(110),
+
+      child: Column(
+        children: [
+          /// TITLE
+          Text(
+            "Poultry Farm Gallery",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: isDesktop ? 40 : 28,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          SizedBox(height: h * 0.02),
+
+          Text(
+            "Conveniently customize proactive web services for leveraged interfaces without Globally",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: isDesktop ? 18 : 14,
+              color: Colors.grey.shade700,
+            ),
+          ),
+
+          SizedBox(height: h * 0.05),
+
+          /// GALLERY GRID
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+
+            itemCount: gallery.length,
+
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              crossAxisSpacing: 20,
+              mainAxisSpacing: 20,
+              childAspectRatio: 1,
+            ),
+
+            itemBuilder: (context, index) {
+              final galleryItem = gallery[index];
+
+              return buildGalleryCard(image: galleryItem["image"]!);
+            },
+          ),
+
+          SizedBox(height: h * 0.04),
+
+          /// BUTTON
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xffF48C45),
+              padding: EdgeInsets.symmetric(
+                horizontal: w * 0.12,
+                vertical: h * 0.018,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(6),
+              ),
+            ),
+            onPressed: () {},
+            child: const Text(
+              "LOAD GALLERY",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildGalleryCard({required String image}) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+
+        child: Image.asset(
+          image,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+        ),
+      ),
+    );
+  }
+
+  Widget buildTeamSection(double w, double h) {
+    bool isDesktop = w > 1000;
+    bool isTablet = w > 650 && w <= 1000;
+
+    int crossAxisCount = isDesktop ? 4 : (isTablet ? 2 : 1);
+
+    List<Map<String, String>> team = [
+      {
+        "image": "assets/images/team1.jpg",
+        "name": "Jason Roy",
+        "role": "Manager",
+      },
+
+      {
+        "image": "assets/images/team2.jpg",
+        "name": "Sahjahan Sagor",
+        "role": "Founder & CEO",
+      },
+
+      {
+        "image": "assets/images/team3.jpg",
+        "name": "Alisha Kabir",
+        "role": "Marketer",
+      },
+
+      {
+        "image": "assets/images/team4.jpg",
+        "name": "Jeson Smith",
+        "role": "Farmer",
+      },
+    ];
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: w * 0.05, vertical: h * 0.06),
+      color: Colors.grey.shade100,
+      child: Column(
+        children: [
+          Text(
+            "Our Team Member",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: isDesktop ? 40 : 28,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: h * 0.015),
+          Text(
+            "Conveniently customize proactive web services for leveraged interfaces without Globally",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: isDesktop ? 18 : 14,
+              color: Colors.grey.shade700,
+            ),
+          ),
+          SizedBox(height: h * 0.05),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: team.length,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              crossAxisSpacing: 20,
+              mainAxisSpacing: 20,
+              childAspectRatio: 0.75,
+            ),
+
+            itemBuilder: (context, index) {
+              final member = team[index];
+
+              return buildTeamCard(
+                image: member["image"]!,
+                name: member["name"]!,
+                role: member["role"]!,
+                h: h,
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildTeamCard({
+    required String image,
+    required String name,
+    required String role,
+    required double h,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(.08),
+            blurRadius: 12,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            child: Image.asset(
+              image,
+              height: h * 0.40,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            ),
+          ),
+          SizedBox(height: 12),
+          Text(
+            name,
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 4),
+          Text(role, style: TextStyle(color: Colors.grey.shade600)),
+          SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.facebook, size: 22, color: Colors.blue),
+              SizedBox(width: 14),
+
+              Icon(Icons.camera_alt, size: 22, color: Colors.red),
+              SizedBox(width: 14),
+
+              Icon(Icons.play_circle_fill, size: 22, color: Colors.purple),
+              SizedBox(width: 14),
+
+              Icon(Icons.business, size: 22, color: Colors.blue),
+            ],
+          ),
+          SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+
+  Widget buildTestimonialSection(double w, double h) {
+
+    bool isDesktop = w > 1000;
+    bool isTablet = w > 650 && w <= 1000;
+
+    int crossAxisCount = isDesktop ? 3 : (isTablet ? 2 : 1);
+
+    List<Map<String, String>> testimonials = [
+
+      {
+        "image": "assets/images/team1.jpg",
+        "name": "Jeson Smith",
+        "role": "Founder & CEO",
+        "desc":
+        "Continually conceptualize technically innovative solutions professionally monetize testing. Professionally enable functionalized e-commerce initiatives."
+      },
+
+      {
+        "image": "assets/images/team2.jpg",
+        "name": "Sahjahan Sagor",
+        "role": "Founder & CEO",
+        "desc":
+        "Continually conceptualize technically innovative solutions professionally monetize testing. Professionally enable functionalized e-commerce initiatives."
+      },
+
+      {
+        "image": "assets/images/team3.jpg",
+        "name": "Alisha Kabir",
+        "role": "Founder & CEO",
+        "desc":
+        "Continually conceptualize technically innovative solutions professionally monetize testing. Professionally enable functionalized e-commerce initiatives."
+      },
+
+    ];
+
+    return Container(
+
+      width: double.infinity,
+
+      padding: EdgeInsets.symmetric(
+        horizontal: w * 0.05,
+        vertical: h * 0.06,
+      ),
+
+      color: const Color(0xffF3E6D9),
+
+      child: Column(
+        children: [
+
+          /// TITLE
+          Text(
+            "What Client Say Our Poultry Farm",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: isDesktop ? 40 : 28,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          SizedBox(height: h * 0.015),
+
+          Text(
+            "Conveniently customize proactive web services for leveraged interfaces without Globally",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: isDesktop ? 18 : 14,
+              color: Colors.grey.shade700,
+            ),
+          ),
+
+          SizedBox(height: h * 0.05),
+
+          /// GRID
+          GridView.builder(
+
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+
+            itemCount: testimonials.length,
+
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              crossAxisSpacing: 25,
+              mainAxisSpacing: 25,
+              childAspectRatio: isDesktop ? 1.5 : 1.25,
+            ),
+
+            itemBuilder: (context, index) {
+
+              final item = testimonials[index];
+
+              return buildTestimonialCard(
+                image: item["image"]!,
+                name: item["name"]!,
+                role: item["role"]!,
+                desc: item["desc"]!,
+              );
+
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildTestimonialCard({
+    required String image,
+    required String name,
+    required String role,
+    required String desc,
+  }) {
+
+    return Container(
+
+      padding: const EdgeInsets.all(20),
+
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(.08),
+            blurRadius: 10,
+            offset: const Offset(0,4),
+          )
+        ],
+      ),
+
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+
+          /// USER INFO
+          Row(
+            children: [
+
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+
+                child: Image.asset(
+                  image,
+                  height: 60,
+                  width: 60,
+                  fit: BoxFit.cover,
+                ),
+              ),
+
+              const SizedBox(width: 15),
+
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+
+                  Text(
+                    name,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  Text(
+                    role,
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+
+                  const SizedBox(height: 4),
+
+                  /// STARS
+                  Row(
+                    children: List.generate(
+                      5,
+                          (index) => const Icon(
+                        Icons.star_border,
+                        color: Colors.orange,
+                        size: 18,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 18),
+
+          /// QUOTE ICON
+          Icon(
+            Icons.format_quote,
+            color: Colors.grey.shade300,
+            size: 40,
+          ),
+
+          const SizedBox(height: 10),
+
+          /// DESCRIPTION
+          Text(
+            desc,
+            style: TextStyle(
+              color: Colors.grey.shade700,
+              height: 1.6,
+            ),
           ),
         ],
       ),
