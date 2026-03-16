@@ -100,16 +100,30 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       drawer: const AppDrawer(),
-      floatingActionButton: Container(
-        height: h * 0.0503,
-        width: w * 0.110,
+      floatingActionButton: SizedBox(
+        height: w > 1000
+            ? 60
+            : w > 650
+            ? 55
+            : 50,
+        width: w > 1000
+            ? 60
+            : w > 650
+            ? 55
+            : 50,
+
         child: FloatingActionButton(
           backgroundColor: const Color(0xffF48C45),
+
           onPressed: scrollToTop,
-          child: const Icon(Icons.arrow_upward, color: Colors.white),
+
+          child: Icon(
+            Icons.arrow_upward,
+            color: Colors.white,
+            size: w > 1000 ? 28 : 24,
+          ),
         ),
       ),
-
       appBar: AppBar(
         toolbarHeight: h * 0.070,
         elevation: 1,
@@ -168,7 +182,7 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             children: [
               SizedBox(height: 3),
-              buildHeroSection( w, h),
+              buildHeroSection(w, h),
               buildAboutSection(w, h),
               buildProductsSection(w, h),
               buildServicesSection(w, h),
@@ -183,7 +197,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget buildHeroSection(double w, double h) {
-
     bool isDesktop = w > 1000;
     bool isTablet = w > 650 && w <= 1000;
 
@@ -195,7 +208,6 @@ class _HomePageState extends State<HomePage> {
 
     return Stack(
       children: [
-
         /// SLIDER
         SizedBox(
           height: heroHeight,
@@ -206,10 +218,7 @@ class _HomePageState extends State<HomePage> {
             itemCount: banners.length,
 
             itemBuilder: (context, index) {
-              return Image.asset(
-                banners[index]["image"]!,
-                fit: BoxFit.cover,
-              );
+              return Image.asset(banners[index]["image"]!, fit: BoxFit.cover);
             },
 
             onPageChanged: (index) {
@@ -232,12 +241,10 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 600),
 
                 transitionBuilder: (child, animation) {
-
                   final offsetAnimation = Tween<Offset>(
                     begin: const Offset(0, -0.5),
                     end: Offset.zero,
@@ -245,19 +252,14 @@ class _HomePageState extends State<HomePage> {
 
                   return SlideTransition(
                     position: offsetAnimation,
-                    child: FadeTransition(
-                      opacity: animation,
-                      child: child,
-                    ),
+                    child: FadeTransition(opacity: animation, child: child),
                   );
                 },
 
                 child: Padding(
                   key: ValueKey(currentIndex),
 
-                  padding: EdgeInsets.symmetric(
-                    horizontal: w * 0.08,
-                  ),
+                  padding: EdgeInsets.symmetric(horizontal: w * 0.08),
 
                   child: Text(
                     banners[currentIndex]["title"]!,
@@ -306,7 +308,7 @@ class _HomePageState extends State<HomePage> {
 
                 children: List.generate(
                   banners.length,
-                      (index) => AnimatedContainer(
+                  (index) => AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
 
                     margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -331,71 +333,60 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget buildAboutSection(double w, double h) {
-
     bool isDesktop = w > 1000;
     bool isTablet = w > 650 && w <= 1000;
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(
-        horizontal: w * 0.06,
-        vertical: h * 0.06,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: w * 0.06, vertical: h * 0.06),
       color: Colors.grey.shade100,
 
       child: isDesktop || isTablet
           ? Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                /// LEFT IMAGE
+                Expanded(
+                  flex: 1,
+                  child: Image.asset(
+                    "assets/images/murgabhai.png",
+                    height: h * 0.45,
+                    fit: BoxFit.contain,
+                  ),
+                ),
 
-          /// LEFT IMAGE
-          Expanded(
-            flex: 1,
-            child: Image.asset(
-              "assets/images/murgabhai.png",
-              height: h * 0.45,
-              fit: BoxFit.contain,
-            ),
-          ),
+                SizedBox(width: w * 0.05),
 
-          SizedBox(width: w * 0.05),
-
-          /// RIGHT TEXT
-          Expanded(
-            flex: 1,
-            child: buildAboutText(w, h),
-          ),
-        ],
-      )
-
-      /// MOBILE VIEW
+                /// RIGHT TEXT
+                Expanded(flex: 1, child: buildAboutText(w, h)),
+              ],
+            )
+          /// MOBILE VIEW
           : Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Image.asset(
+                    "assets/images/murgabhai.png",
+                    height: h * 0.34,
+                    fit: BoxFit.contain,
+                  ),
+                ),
 
-          Center(
-            child: Image.asset(
-              "assets/images/murgabhai.png",
-              height: h * 0.34,
-              fit: BoxFit.contain,
+                SizedBox(height: h * 0.025),
+
+                buildAboutText(w, h),
+              ],
             ),
-          ),
-
-          SizedBox(height: h * 0.025),
-
-          buildAboutText(w, h),
-        ],
-      ),
     );
   }
-  Widget buildAboutText(double w, double h) {
 
+  Widget buildAboutText(double w, double h) {
     bool isDesktop = w > 1000;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
         /// TITLE
         Text(
           "Welcome to Our Poultry And\nEgg Farm.",
@@ -1172,20 +1163,18 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget buildTestimonialSection(double w, double h) {
-
     bool isDesktop = w > 1000;
     bool isTablet = w > 650 && w <= 1000;
 
     int crossAxisCount = isDesktop ? 3 : (isTablet ? 2 : 1);
 
     List<Map<String, String>> testimonials = [
-
       {
         "image": "assets/images/team1.jpg",
         "name": "Jeson Smith",
         "role": "Founder & CEO",
         "desc":
-        "Continually conceptualize technically innovative solutions professionally monetize testing. Professionally enable functionalized e-commerce initiatives."
+            "Continually conceptualize technically innovative solutions professionally monetize testing. Professionally enable functionalized e-commerce initiatives.",
       },
 
       {
@@ -1193,7 +1182,7 @@ class _HomePageState extends State<HomePage> {
         "name": "Sahjahan Sagor",
         "role": "Founder & CEO",
         "desc":
-        "Continually conceptualize technically innovative solutions professionally monetize testing. Professionally enable functionalized e-commerce initiatives."
+            "Continually conceptualize technically innovative solutions professionally monetize testing. Professionally enable functionalized e-commerce initiatives.",
       },
 
       {
@@ -1201,25 +1190,19 @@ class _HomePageState extends State<HomePage> {
         "name": "Alisha Kabir",
         "role": "Founder & CEO",
         "desc":
-        "Continually conceptualize technically innovative solutions professionally monetize testing. Professionally enable functionalized e-commerce initiatives."
+            "Continually conceptualize technically innovative solutions professionally monetize testing. Professionally enable functionalized e-commerce initiatives.",
       },
-
     ];
 
     return Container(
-
       width: double.infinity,
 
-      padding: EdgeInsets.symmetric(
-        horizontal: w * 0.05,
-        vertical: h * 0.06,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: w * 0.05, vertical: h * 0.06),
 
       color: const Color(0xffF3E6D9),
 
       child: Column(
         children: [
-
           /// TITLE
           Text(
             "What Client Say Our Poultry Farm",
@@ -1245,7 +1228,6 @@ class _HomePageState extends State<HomePage> {
 
           /// GRID
           GridView.builder(
-
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
 
@@ -1259,7 +1241,6 @@ class _HomePageState extends State<HomePage> {
             ),
 
             itemBuilder: (context, index) {
-
               final item = testimonials[index];
 
               return buildTestimonialCard(
@@ -1268,7 +1249,6 @@ class _HomePageState extends State<HomePage> {
                 role: item["role"]!,
                 desc: item["desc"]!,
               );
-
             },
           ),
         ],
@@ -1282,9 +1262,7 @@ class _HomePageState extends State<HomePage> {
     required String role,
     required String desc,
   }) {
-
     return Container(
-
       padding: const EdgeInsets.all(20),
 
       decoration: BoxDecoration(
@@ -1295,19 +1273,17 @@ class _HomePageState extends State<HomePage> {
           BoxShadow(
             color: Colors.black.withOpacity(.08),
             blurRadius: 10,
-            offset: const Offset(0,4),
-          )
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
 
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           /// USER INFO
           Row(
             children: [
-
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
 
@@ -1324,7 +1300,6 @@ class _HomePageState extends State<HomePage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   Text(
                     name,
                     style: const TextStyle(
@@ -1333,12 +1308,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
 
-                  Text(
-                    role,
-                    style: TextStyle(
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
+                  Text(role, style: TextStyle(color: Colors.grey.shade600)),
 
                   const SizedBox(height: 4),
 
@@ -1346,7 +1316,7 @@ class _HomePageState extends State<HomePage> {
                   Row(
                     children: List.generate(
                       5,
-                          (index) => const Icon(
+                      (index) => const Icon(
                         Icons.star_border,
                         color: Colors.orange,
                         size: 18,
@@ -1361,21 +1331,14 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 18),
 
           /// QUOTE ICON
-          Icon(
-            Icons.format_quote,
-            color: Colors.grey.shade300,
-            size: 40,
-          ),
+          Icon(Icons.format_quote, color: Colors.grey.shade300, size: 40),
 
           const SizedBox(height: 10),
 
           /// DESCRIPTION
           Text(
             desc,
-            style: TextStyle(
-              color: Colors.grey.shade700,
-              height: 1.6,
-            ),
+            style: TextStyle(color: Colors.grey.shade700, height: 1.6),
           ),
         ],
       ),
