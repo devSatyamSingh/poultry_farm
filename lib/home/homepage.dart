@@ -13,11 +13,22 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final PageController _pageController = PageController();
-
+  late PageController _logoPageController;
   int currentIndex = 0;
   final ScrollController _scrollController = ScrollController();
   List<CartItem> cartItems = [];
   Map<String, int> quantities = {};
+  // final PageController _logoPageController = PageController();
+  int logoIndex = 0;
+
+  List<String> ads = [
+    "assets/images/ad1.png",
+    "assets/images/ad2.png",
+    "assets/images/ad3.png",
+    "assets/images/ad4.png",
+    "assets/images/ad5.png",
+  ];
+  late List<String> loopAds;
 
   List<Map<String, String>> banners = [
     {
@@ -39,6 +50,13 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     startAutoScroll();
+    logoIndex = ads.length; // 👈 middle se start
+    _logoPageController = PageController(
+      viewportFraction: 0.25, // default (desktop)
+      initialPage: logoIndex,
+    );
+    startLogoAutoScroll();
+    loopAds = [...ads, ...ads, ...ads, ...ads, ...ads];
   }
 
   void scrollToTop() {
@@ -68,6 +86,27 @@ class _HomePageState extends State<HomePage> {
       }
 
       startAutoScroll();
+    });
+  }
+
+  void startLogoAutoScroll() {
+    Timer.periodic(const Duration(seconds: 2), (timer) {
+      if (_logoPageController.hasClients) {
+        logoIndex++;
+
+        _logoPageController.animateToPage(
+          logoIndex,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.linear,
+        );
+
+        /// 🔥 reset silently (no lag)
+        if (logoIndex >= ads.length * 2) {
+          logoIndex = ads.length;
+
+          _logoPageController.jumpToPage(logoIndex);
+        }
+      }
     });
   }
 
@@ -114,9 +153,7 @@ class _HomePageState extends State<HomePage> {
 
         child: FloatingActionButton(
           backgroundColor: const Color(0xffF48C45),
-
           onPressed: scrollToTop,
-
           child: Icon(
             Icons.arrow_upward,
             color: Colors.white,
@@ -189,6 +226,10 @@ class _HomePageState extends State<HomePage> {
               buildGallery(w, h),
               buildTeamSection(w, h),
               buildTestimonialSection(w, h),
+              buildNewsSection(w, h),
+              buildAdsSection(w, h),
+              buildFeaturesSection(w, h),
+              buildFooter(w, h),
             ],
           ),
         ),
@@ -208,19 +249,15 @@ class _HomePageState extends State<HomePage> {
 
     return Stack(
       children: [
-        /// SLIDER
         SizedBox(
           height: heroHeight,
           width: double.infinity,
-
           child: PageView.builder(
             controller: _pageController,
             itemCount: banners.length,
-
             itemBuilder: (context, index) {
               return Image.asset(banners[index]["image"]!, fit: BoxFit.cover);
             },
-
             onPageChanged: (index) {
               setState(() {
                 currentIndex = index;
@@ -229,42 +266,33 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
 
-        /// DARK OVERLAY
         Container(
           height: heroHeight,
           width: double.infinity,
           color: Colors.black.withOpacity(0.45),
         ),
-
-        /// TEXT CONTENT
         Positioned.fill(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 600),
-
                 transitionBuilder: (child, animation) {
                   final offsetAnimation = Tween<Offset>(
                     begin: const Offset(0, -0.5),
                     end: Offset.zero,
                   ).animate(animation);
-
                   return SlideTransition(
                     position: offsetAnimation,
                     child: FadeTransition(opacity: animation, child: child),
                   );
                 },
-
                 child: Padding(
                   key: ValueKey(currentIndex),
-
                   padding: EdgeInsets.symmetric(horizontal: w * 0.08),
-
                   child: Text(
                     banners[currentIndex]["title"]!,
                     textAlign: TextAlign.center,
-
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: isDesktop
@@ -277,10 +305,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-
               SizedBox(height: heroHeight * 0.05),
-
-              /// BUTTON
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange,
@@ -290,8 +315,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 onPressed: () {},
-
-                child: const Text(
+                child: Text(
                   "DISCOVER NOW",
                   style: TextStyle(
                     color: Colors.white,
@@ -299,23 +323,16 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-
               SizedBox(height: heroHeight * 0.08),
-
-              /// DOT INDICATOR
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-
                 children: List.generate(
                   banners.length,
                   (index) => AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
-
                     margin: const EdgeInsets.symmetric(horizontal: 4),
-
                     height: 8,
                     width: currentIndex == index ? 16 : 8,
-
                     decoration: BoxDecoration(
                       color: currentIndex == index
                           ? Colors.orange
@@ -335,17 +352,14 @@ class _HomePageState extends State<HomePage> {
   Widget buildAboutSection(double w, double h) {
     bool isDesktop = w > 1000;
     bool isTablet = w > 650 && w <= 1000;
-
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: w * 0.06, vertical: h * 0.06),
       color: Colors.grey.shade100,
-
       child: isDesktop || isTablet
           ? Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                /// LEFT IMAGE
                 Expanded(
                   flex: 1,
                   child: Image.asset(
@@ -354,14 +368,10 @@ class _HomePageState extends State<HomePage> {
                     fit: BoxFit.contain,
                   ),
                 ),
-
                 SizedBox(width: w * 0.05),
-
-                /// RIGHT TEXT
                 Expanded(flex: 1, child: buildAboutText(w, h)),
               ],
             )
-          /// MOBILE VIEW
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -372,9 +382,7 @@ class _HomePageState extends State<HomePage> {
                     fit: BoxFit.contain,
                   ),
                 ),
-
                 SizedBox(height: h * 0.025),
-
                 buildAboutText(w, h),
               ],
             ),
@@ -383,11 +391,9 @@ class _HomePageState extends State<HomePage> {
 
   Widget buildAboutText(double w, double h) {
     bool isDesktop = w > 1000;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        /// TITLE
         Text(
           "Welcome to Our Poultry And\nEgg Farm.",
           style: TextStyle(
@@ -396,10 +402,7 @@ class _HomePageState extends State<HomePage> {
             color: Colors.black,
           ),
         ),
-
         SizedBox(height: h * 0.02),
-
-        /// DESCRIPTION
         Text(
           "Continually productize compelling quality for packed with elated productize compelling quality for packed with all elated them setting up to website and creating pages.",
           style: TextStyle(
@@ -410,7 +413,6 @@ class _HomePageState extends State<HomePage> {
         ),
 
         SizedBox(height: h * 0.025),
-
         buildPoint("We are providing different services"),
         buildPoint("We are one of leading company"),
         buildPoint("Profitability is the primary goal of all business"),
@@ -418,8 +420,6 @@ class _HomePageState extends State<HomePage> {
         buildPoint("Professional solutions for your business"),
 
         SizedBox(height: h * 0.03),
-
-        /// BUTTON
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xffF48C45),
@@ -452,9 +452,7 @@ class _HomePageState extends State<HomePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.check_box, color: Color(0xffF48C45), size: 22),
-
           SizedBox(width: 10),
-
           Expanded(
             child: Text(
               text,
@@ -469,9 +467,7 @@ class _HomePageState extends State<HomePage> {
   Widget buildProductsSection(double w, double h) {
     bool isDesktop = w > 1000;
     bool isTablet = w > 650 && w <= 1000;
-
     int crossAxisCount = isDesktop ? 3 : (isTablet ? 2 : 1);
-
     List<Map<String, String>> products = [
       {
         "image": "assets/images/pro1.png",
@@ -518,7 +514,6 @@ class _HomePageState extends State<HomePage> {
 
       child: Column(
         children: [
-          /// TITLE
           Text(
             "Poultry Farm\nProducts",
             textAlign: TextAlign.center,
@@ -527,9 +522,7 @@ class _HomePageState extends State<HomePage> {
               fontWeight: FontWeight.bold,
             ),
           ),
-
           SizedBox(height: h * 0.02),
-
           Text(
             "Conveniently customize proactive web services for leveraged interfaces without Globally",
             textAlign: TextAlign.center,
@@ -538,26 +531,19 @@ class _HomePageState extends State<HomePage> {
               color: Colors.grey.shade700,
             ),
           ),
-
           SizedBox(height: h * 0.04),
-
-          /// PRODUCT GRID
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-
             itemCount: products.length,
-
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: crossAxisCount,
               crossAxisSpacing: 20,
               mainAxisSpacing: 20,
               childAspectRatio: isDesktop ? 0.95 : 0.8,
             ),
-
             itemBuilder: (context, index) {
               final product = products[index];
-
               return buildProductCard(
                 image: product["image"]!,
                 title: product["title"]!,
@@ -567,10 +553,7 @@ class _HomePageState extends State<HomePage> {
               );
             },
           ),
-
           SizedBox(height: h * 0.04),
-
-          /// SHOP BUTTON
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xffF48C45),
@@ -604,7 +587,6 @@ class _HomePageState extends State<HomePage> {
     required double h,
   }) {
     int quantity = quantities[title] ?? 0;
-
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -621,9 +603,7 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         children: [
           Image.asset(image, height: h * 0.20, fit: BoxFit.contain),
-
           const SizedBox(height: 12),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(
@@ -635,17 +615,13 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-
           const SizedBox(height: 10),
-
           Text(
             title,
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
-
           const SizedBox(height: 8),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -1342,6 +1318,469 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget buildNewsSection(double w, double h) {
+    bool isDesktop = w > 1000;
+    bool isTablet = w > 650 && w <= 1000;
+
+    int crossAxisCount = isDesktop ? 3 : (isTablet ? 2 : 1);
+
+    List<Map<String, String>> news = [
+      {
+        "image": "assets/images/team1.jpg",
+        "title": "Chicken ducklings to help solve Obesity...",
+        "desc":
+            "Conveniently customize proactive web services without Globally. oe-enable functionalized e-commerce conceptualize technically initiatives.",
+      },
+
+      {
+        "image": "assets/images/team2.jpg",
+        "title": "Will eggs be a news source of cancer drugs...",
+        "desc":
+            "Conveniently customize proactive web services without Globally. oe-enable functionalized e-commerce conceptualize technically initiatives.",
+      },
+
+      {
+        "image": "assets/images/team3.jpg",
+        "title": "Omega-3 chicken,egg may lower heart attack...",
+        "desc":
+            "Conveniently customize proactive web services without Globally. oe-enable functionalized e-commerce conceptualize technically initiatives.",
+      },
+    ];
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: w * 0.05, vertical: h * 0.06),
+      color: Colors.grey.shade100,
+      child: Column(
+        children: [
+          Text(
+            "Our Recent News",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: isDesktop ? 40 : 28,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: h * 0.015),
+          Text(
+            "Conveniently customize proactive web services for leveraged interfaces without Globally",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: isDesktop ? 18 : 14,
+              color: Colors.grey.shade700,
+            ),
+          ),
+          SizedBox(height: h * 0.05),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: news.length,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              crossAxisSpacing: 25,
+              mainAxisSpacing: 25,
+              mainAxisExtent: 470,
+            ),
+            itemBuilder: (context, index) {
+              final item = news[index];
+              return buildNewsCard(
+                image: item["image"]!,
+                title: item["title"]!,
+                desc: item["desc"]!,
+                w: w,
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildNewsCard({
+    required String image,
+    required String title,
+    required String desc,
+    required double w,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(.08), blurRadius: 10),
+        ],
+      ),
+
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+            child: Image.asset(
+              image,
+              height: w > 1000
+                  ? 270
+                  : w > 650
+                  ? 230
+                  : 260,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+                Text(
+                  desc,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: Colors.grey.shade700),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  "Read More",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildAdsSection(double w, double h) {
+    bool isDesktop = w > 1000;
+    bool isTablet = w > 650 && w <= 1000;
+
+    double viewport = isDesktop
+        ? 0.25
+        : isTablet
+        ? 0.5
+        : 1.0;
+
+    return Container(
+      width: double.infinity,
+      color: const Color(0xffDED6CF),
+      padding: EdgeInsets.symmetric(vertical: h * 0.04),
+      child: SizedBox(
+        height: isDesktop ? 150 : 130,
+        child: PageView.builder(
+          controller: _logoPageController,
+          itemCount: loopAds.length,
+          onPageChanged: (i) {
+            logoIndex = i;
+          },
+          itemBuilder: (context, index) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: SizedBox(
+                width: double.infinity,
+                child: Image.asset(loopAds[index], fit: BoxFit.contain),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget buildFeaturesSection(double w, double h) {
+    bool isDesktop = w > 1000;
+    bool isTablet = w > 650 && w <= 1000;
+
+    int crossAxisCount = isDesktop ? 4 : (isTablet ? 2 : 1);
+
+    List<Map<String, String>> features = [
+      {
+        "image": "assets/images/f1.png",
+        "title": "Products Range",
+        "desc":
+            "Conveniently customize recaptiualize focused inter without globally",
+      },
+      {
+        "image": "assets/images/f2.png",
+        "title": "Quality Matters",
+        "desc":
+            "Conveniently customize recaptiualize focused inter without globally",
+      },
+      {
+        "image": "assets/images/f3.png",
+        "title": "Free Shipping",
+        "desc":
+            "Conveniently customize recaptiualize focused inter without globally",
+      },
+      {
+        "image": "assets/images/f4.png",
+        "title": "Customer Satisfaction",
+        "desc":
+            "Conveniently customize recaptiualize focused inter without globally",
+      },
+    ];
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: w * 0.05, vertical: h * 0.06),
+      color: Colors.white,
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: features.length,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: crossAxisCount,
+          crossAxisSpacing: 25,
+          mainAxisSpacing: 25,
+          childAspectRatio: isDesktop ? 1.2 : 1.1,
+        ),
+        itemBuilder: (context, index) {
+          final item = features[index];
+
+          return Container(
+            padding: const EdgeInsets.all(22),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(item["image"]!, height: 55, fit: BoxFit.contain),
+                SizedBox(height: 16),
+                Text(
+                  item["title"]!,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 15),
+                Text(
+                  item["desc"]!,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade600,
+                    height: 1.5,
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget buildFooter(double w, double h) {
+    bool isDesktop = w > 1000;
+    bool isTablet = w > 650 && w <= 1000;
+    int crossAxisCount = isDesktop ? 4 : (isTablet ? 2 : 1);
+    return Container(
+      width: double.infinity,
+      color: const Color(0xffDED6CF),
+      padding: EdgeInsets.symmetric(horizontal: w * 0.05, vertical: h * 0.06),
+      child: Column(
+        children: [
+          GridView.count(
+            crossAxisCount: crossAxisCount,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisSpacing: 20,
+            mainAxisSpacing: 20,
+            childAspectRatio: isDesktop
+                ? 1.8
+                : isTablet
+                ? 1.4
+                : 1.2, // 👈 mobile fix
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.asset("assets/images/poultrylogo.png", height: 40),
+                  SizedBox(height: w > 650 ? 15 : 8),
+                  Text(
+                    "Conveniently customize web services aggregate frictionle internet without globaly.",
+                    style: TextStyle(color: Colors.grey.shade700, height: 1.5),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    "Enthusiastically scale synergistic technologies for leveraged with technology quickly.",
+                    style: TextStyle(color: Colors.grey.shade700, height: 1.5),
+                  ),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min, // 👈 FIX
+                children: [
+                  Text(
+                    "Keep In Touch",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: w > 650 ? 15 : 8),
+
+                  Row(
+                    children: [
+                      Icon(Icons.phone, color: Colors.orange, size: 18),
+                      SizedBox(width: 10),
+                      Expanded(child: Text("+9161440593\n+1234567890")),
+                    ],
+                  ),
+
+                  SizedBox(height: 8),
+
+                  Row(
+                    children: [
+                      Icon(Icons.access_time, color: Colors.orange, size: 18),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          "Mon - Sat 10:00am - 7:00pm\n(except public holidays)",
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  SizedBox(height: 8),
+
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.location_on, color: Colors.orange, size: 18),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          "Gour City Mall Office Space 14 flore, 14119 room noida, UP",
+                          softWrap: true, // 👈 FIX
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+
+              /// 🔶 PRODUCTS
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min, // 👈 FIX
+                children: [
+                  Text(
+                    "Poultry Farm Product",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: w > 650 ? 15 : 5),
+
+                  buildFooterProduct(
+                    "assets/images/pro1.png",
+                    "Light Brown Eggs",
+                  ),
+
+                  SizedBox(height: 8),
+
+                  buildFooterProduct(
+                    "assets/images/pro2.png",
+                    "Little Chicken Broiler",
+                  ),
+                ],
+              ),
+
+              /// 🔶 INSTAGRAM
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "Instagram Feed",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: w > 645 ? 11.7 : 5),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: List.generate(6, (index) {
+                      List images = [
+                        "assets/images/gal1.jpg",
+                        "assets/images/gal2.jpg",
+                        "assets/images/gal3.jpg",
+                        "assets/images/gal4.jpg",
+                        "assets/images/gal5.jpg",
+                        "assets/images/gal6.jpg",
+                      ];
+
+                      return SizedBox(
+                        width: (w > 1000)
+                            ? 68   // desktop
+                            : (w > 650)
+                            ? 80 // tablet
+                            : (w * 0.25), // mobile responsive
+                        height: (w > 1000)
+                            ? 68
+                            : (w > 650)
+                            ? 80
+                            : (w * 0.25),
+
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: Image.asset(
+                            images[index],
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ],
+              )
+            ],
+          ),
+
+          SizedBox(height: 20),
+
+          /// 🔻 COPYRIGHT
+          Text(
+            "© 2026 Poultry Farm .All Rights Reserved By FC",
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.black87),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildFooterProduct(String image, String title) {
+    return Row(
+      children: [
+        Image.asset(image, height: 50),
+        SizedBox(width: 10),
+        Expanded(
+          // 👈 IMPORTANT FIX
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(fontWeight: FontWeight.bold),
+                overflow: TextOverflow.ellipsis,
+              ),
+              Text("\$25.99"),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
